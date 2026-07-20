@@ -20,3 +20,9 @@ RUN pip install -r requirements.txt
 
 # Copiar el resto del código del backend
 COPY . /app/
+
+# Exponer el puerto (Render lo detectará automáticamente)
+EXPOSE 8000
+
+# Comando para encender el servidor en producción usando Gunicorn
+CMD ["gunicorn", "leravi_api.wsgi:application", "--bind", "0.0.0.0:8000"]
