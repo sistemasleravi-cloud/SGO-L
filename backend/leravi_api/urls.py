@@ -11,24 +11,38 @@ from django.db import connection
 from django.contrib.auth import get_user_model
 
 def reparar_base_datos(request):
-    try:
-        User = get_user_model()
-        with connection.schema_editor() as schema_editor:
-            # 1. Creamos la tabla de relaciones de grupos (usuarios_groups)
-            try:
-                schema_editor.create_model(User.groups.through)
-            except Exception:
-                pass 
-            
-            # 2. Creamos la tabla de relaciones de permisos (usuarios_user_permissions)
-            try:
-                schema_editor.create_model(User.user_permissions.through)
-            except Exception:
-                pass
+    User = get_user_model()
+    
+    # 1. Obtenemos el ID de Cananea buscando a Lalo (o cualquier usuario que ya tenga empresa)
+    usuario = User.objects.filter(empresa_id__isnull=False).first()
+    empresa_id = usuario.empresa_id if usuario else 1
 
-        return HttpResponse("<h2>¡Tablas de Permisos Listas!</h2> <p>Las tablas secundarias fueron creadas con éxito. Ya puedes guardar a tu usuario.</p>")
-    except Exception as e:
-        return HttpResponse(f"Fallo al crear tablas de permisos: {str(e)}")
+    # 2. Lista de todas tus tablas operativas probables
+    tablas_operativas = [
+        'taller', 'maquinas', 'bitacora', 
+        'bitacora_completados', 'completados',
+        'herramientas', 'prestamo_herramientas',
+        'almacen_inventario', 'almacen_movimientos'
+    ]
+    
+    exitos = []
+    
+    with connection.cursor() as cursor:
+        for tabla in tablas_operativas:
+            try:
+                # Agregamos la columna que Django exige
+                cursor.execute(f"ALTER TABLE {tabla} ADD COLUMN empresa_id BIGINT NULL;")
+            except Exception:
+                pass # Si la columna ya existe, la ignoramos suavemente
+                
+            try:
+                # Le asignamos todo el historial antiguo a tu empresa (Cananea)
+                cursor.execute(f"UPDATE {tabla} SET empresa_id = {empresa_id} WHERE empresa_id IS NULL;")
+                exitos.append(tabla)
+            except Exception:
+                pass # Si la tabla no existe en tu BD con ese nombre exacto, saltamos a la siguiente
+
+    return HttpResponse(f"<h2>¡Datos Rescatados!</h2> <p>Las tablas <b>{', '.join(exitos)}</b> fueron actualizadas y conectadas a tu Sede. Ve a tu panel a ver la magia.</p>")
 # -------------------------------------------------------------------------------------
 # --- FIN DE CÓDIGO TEMPORAL ---
 # -------------------------------------------------------------------------------------
@@ -46,7 +60,6 @@ urlpatterns = [
     path('reparar-db/', reparar_base_datos),
     # ---------------------------------------------------------------------------------
     
-    # 2. La ruta apuntando a tu nueva vista personalizada
     path('api/login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
