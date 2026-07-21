@@ -20,9 +20,9 @@ def reparar_base_datos(request):
     # 2. Lista de todas tus tablas operativas probables
     tablas_operativas = [
         'taller', 'maquinas', 'bitacora', 
-        'bitacora_completados', 'completados',
-        'herramientas', 'prestamo_herramientas',
-        'almacen_inventario', 'almacen_movimientos'
+        #'bitacora_completados', 'completados',
+        #'herramientas', 'prestamo_herramientas',
+        #'almacen_inventario', 'almacen_movimientos'
     ]
     
     exitos = []
