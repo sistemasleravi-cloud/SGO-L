@@ -25,4 +25,5 @@ COPY . /app/
 EXPOSE 8000
 
 # Comando para encender el servidor en producción usando Gunicorn
-CMD ["sh", "-c", "python manage.py collectstatic --noinput && gunicorn leravi_api.wsgi:application --bind 0.0.0.0:8000"]
+# Comando para encender el servidor en producción usando Gunicorn con tiempo extendido
+CMD ["sh", "-c", "python manage.py collectstatic --noinput && gunicorn leravi_api.wsgi:application --bind 0.0.0.0:8000 --timeout 120"]
