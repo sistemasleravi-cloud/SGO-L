@@ -11,11 +11,13 @@ from django.core.management import call_command
 
 def reparar_base_datos(request):
     try:
-        # Obligamos a Django a crear sus tablas internas de sistema en Aiven
-        call_command('migrate', 'sessions')
-        call_command('migrate', 'admin')
+        # 1. Engañamos a Django diciéndole que las tablas de 'nucleo' ya están instaladas
+        call_command('migrate', 'nucleo', fake=True)
         
-        return HttpResponse("<h2>¡Tablas de sistema listas!</h2> <p>La tabla django_session fue creada exitosamente. Ya puedes iniciar sesión en el panel.</p>")
+        # 2. Ahora sí, instalamos todo lo demás que haga falta (sesiones, admin, auth, etc.)
+        call_command('migrate')
+        
+        return HttpResponse("<h2>¡Tablas de sistema listas!</h2> <p>La tabla django_session y las dependencias fueron creadas exitosamente. Ya puedes iniciar sesión en el panel.</p>")
     except Exception as e:
         return HttpResponse(f"Fallo al crear las tablas internas: {str(e)}")
 # -------------------------------------------------------------------------------------
