@@ -15,7 +15,7 @@ from django.utils import timezone
 def reparar_base_datos(request):
     User = get_user_model()
     
-    # 1. Inyectamos TODAS las columnas, incluyendo tu llave foránea a empresa
+    # 1. Inyectamos las columnas (por si acaso faltó alguna en los intentos)
     consultas = [
         "ALTER TABLE usuarios ADD COLUMN password VARCHAR(128) NOT NULL DEFAULT '';",
         "ALTER TABLE usuarios ADD COLUMN last_login DATETIME(6) NULL;",
@@ -34,14 +34,15 @@ def reparar_base_datos(request):
             try:
                 cursor.execute(sql)
             except Exception:
-                pass # Si la columna ya existe, la ignora silenciosamente
+                pass 
 
-    # 2. Creamos tu cuenta maestra
+    # 2. Creamos tu cuenta maestra llenando TAMBIÉN tu columna antigua
     try:
         user = User.objects.filter(username='AdminChristian').first()
         if not user:
             user = User(
                 username='AdminChristian', 
+                usuario='AdminChristian', # <-- EL DATO DE TU TABLA ORIGINAL
                 is_superuser=True, 
                 is_staff=True, 
                 is_active=True,
@@ -53,7 +54,7 @@ def reparar_base_datos(request):
         
         return HttpResponse("<h2>¡ÉXITO DEFINITIVO!</h2> <p>Base de datos lista. Ya puedes entrar con:<br><b>Usuario:</b> AdminChristian<br><b>Contraseña:</b> LeraviChris0611</p>")
     except Exception as e:
-        return HttpResponse(f"Columnas inyectadas, pero el usuario falló por este motivo: {str(e)}")
+        return HttpResponse(f"Fallo en la creación del usuario: {str(e)}")
 # -------------------------------------------------------------------------------------
 # --- FIN DE CÓDIGO TEMPORAL ---
 # -------------------------------------------------------------------------------------
@@ -65,14 +66,13 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('nucleo.urls')), # Las rutas de tu app
+    path('api/', include('nucleo.urls')), 
     
     # ---------------------------------------------------------------------------------
     # --- RUTA TEMPORAL (ELIMINAR TAMBIÉN) ---
     path('reparar-db/', reparar_base_datos),
     # ---------------------------------------------------------------------------------
     
-    # 2. La ruta apuntando a tu nueva vista personalizada
     path('api/login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
