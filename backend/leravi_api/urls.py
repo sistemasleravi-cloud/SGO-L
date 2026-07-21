@@ -15,7 +15,7 @@ from django.utils import timezone
 def reparar_base_datos(request):
     User = get_user_model()
     
-    # 1. Inyectamos TODAS las columnas que Django exige
+    # 1. Inyectamos TODAS las columnas, incluyendo tu llave foránea a empresa
     consultas = [
         "ALTER TABLE usuarios ADD COLUMN password VARCHAR(128) NOT NULL DEFAULT '';",
         "ALTER TABLE usuarios ADD COLUMN last_login DATETIME(6) NULL;",
@@ -26,7 +26,8 @@ def reparar_base_datos(request):
         "ALTER TABLE usuarios ADD COLUMN first_name VARCHAR(150) NULL;",
         "ALTER TABLE usuarios ADD COLUMN last_name VARCHAR(150) NULL;",
         "ALTER TABLE usuarios ADD COLUMN email VARCHAR(254) NULL;",
-        "ALTER TABLE usuarios ADD COLUMN date_joined DATETIME(6) NULL;"
+        "ALTER TABLE usuarios ADD COLUMN date_joined DATETIME(6) NULL;",
+        "ALTER TABLE usuarios ADD COLUMN empresa_id BIGINT NULL;"
     ]
     with connection.cursor() as cursor:
         for sql in consultas:
