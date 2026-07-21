@@ -8,16 +8,27 @@ from nucleo.serializers import CustomTokenObtainPairSerializer
 # -------------------------------------------------------------------------------------
 from django.http import HttpResponse
 from django.db import connection
+from django.contrib.auth import get_user_model
 
 def reparar_base_datos(request):
     try:
-        with connection.cursor() as cursor:
-            # Hacemos que la columna antigua 'password_hash' sea opcional permitiendo NULL
-            cursor.execute("ALTER TABLE usuarios MODIFY password_hash VARCHAR(255) NULL;")
+        User = get_user_model()
+        with connection.schema_editor() as schema_editor:
+            # 1. Creamos la tabla de relaciones de grupos (usuarios_groups)
+            try:
+                schema_editor.create_model(User.groups.through)
+            except Exception:
+                pass 
             
-        return HttpResponse("<h2>¡ÚLTIMO FANTASMA ELIMINADO!</h2> <p>La columna password_hash ya no es obligatoria. Intenta agregar el usuario nuevamente.</p>")
+            # 2. Creamos la tabla de relaciones de permisos (usuarios_user_permissions)
+            try:
+                schema_editor.create_model(User.user_permissions.through)
+            except Exception:
+                pass
+
+        return HttpResponse("<h2>¡Tablas de Permisos Listas!</h2> <p>Las tablas secundarias fueron creadas con éxito. Ya puedes guardar a tu usuario.</p>")
     except Exception as e:
-        return HttpResponse(f"Fallo en la base de datos: {str(e)}")
+        return HttpResponse(f"Fallo al crear tablas de permisos: {str(e)}")
 # -------------------------------------------------------------------------------------
 # --- FIN DE CÓDIGO TEMPORAL ---
 # -------------------------------------------------------------------------------------
