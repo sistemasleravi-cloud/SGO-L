@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api/',
+  // Apuntamos directamente a tu servidor en producción
+  baseURL: 'https://leravi-backend-api.onrender.com/api/',
 });
 
 api.interceptors.request.use(config => {
