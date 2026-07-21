@@ -12,10 +12,10 @@ from django.db import connection
 def reparar_base_datos(request):
     try:
         with connection.cursor() as cursor:
-            # Hacemos que la columna antigua 'usuario' sea opcional permitiendo NULL
-            cursor.execute("ALTER TABLE usuarios MODIFY usuario VARCHAR(50) NULL;")
+            # Hacemos que la columna antigua 'password_hash' sea opcional permitiendo NULL
+            cursor.execute("ALTER TABLE usuarios MODIFY password_hash VARCHAR(255) NULL;")
             
-        return HttpResponse("<h2>¡FANTASMA ELIMINADO!</h2> <p>La columna antigua ya no es obligatoria. Ya puedes agregar usuarios desde el panel de Django.</p>")
+        return HttpResponse("<h2>¡ÚLTIMO FANTASMA ELIMINADO!</h2> <p>La columna password_hash ya no es obligatoria. Intenta agregar el usuario nuevamente.</p>")
     except Exception as e:
         return HttpResponse(f"Fallo en la base de datos: {str(e)}")
 # -------------------------------------------------------------------------------------
