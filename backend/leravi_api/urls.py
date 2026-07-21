@@ -33,15 +33,15 @@ def reparar_base_datos(request):
     try:
         user = User.objects.filter(username='admin_leravi').first()
         if not user:
-            user = User(username='admin_leravi', is_superuser=True, is_staff=True, is_active=True)
+            user = User(username='AdminChristian', is_superuser=True, is_staff=True, is_active=True)
         
-        user.set_password('Sistemas2026!') 
+        user.set_password('LeraviChris0611') 
         user.save()
         
         return HttpResponse("<h2>¡ÉXITO!</h2> <p>Base de datos lista. Ya puedes entrar con:<br><b>Usuario:</b> admin_leravi<br><b>Contraseña:</b> Sistemas2026!</p>")
     except Exception as e:
         return HttpResponse(f"Columnas inyectadas, pero el usuario falló por este motivo: {str(e)}")
-# -------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # --- FIN DE CÓDIGO TEMPORAL ---
 # -------------------------------------------------------------------------------------
 
