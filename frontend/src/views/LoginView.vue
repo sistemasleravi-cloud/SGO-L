@@ -50,7 +50,6 @@ const toggleMostrarPassword = () => {
         </div>
         <h1 class="brand-title">LERAVI</h1>
         <p class="brand-subtitle">CONTROL ADMINISTRATIVO</p>
-        <p class="brand-subtitle">Sistema de Gestion Operativa</p>
         <p class="brand-subtitle">SGO-L</p>
       </div>
 
