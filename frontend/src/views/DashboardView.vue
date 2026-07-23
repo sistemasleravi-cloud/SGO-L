@@ -102,23 +102,39 @@ const cargarDatosPrincipales = async () => {
 const calcularDias = (fechaStr) => {
   if (!fechaStr) return 0;
   
-  const soloFecha = fechaStr.split('T')[0];
+  let dateString = fechaStr;
+  if (dateString.includes('T')) {
+    dateString = dateString.split('T')[0];
+  }
   
+  const parts = dateString.split('-');
+  if (parts.length !== 3) return 0;
+  
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10) - 1;
+  const day = parseInt(parts[2], 10);
+  
+  const inicio = new Date(year, month, day);
   const hoy = new Date();
-  hoy.setHours(0, 0, 0, 0);
   
-  const inicio = new Date(soloFecha + 'T00:00:00');
+  const utcInicio = Date.UTC(inicio.getFullYear(), inicio.getMonth(), inicio.getDate());
+  const utcHoy = Date.UTC(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
   
-  if (isNaN(inicio.getTime())) return 0;
+  const diferenciaMs = utcHoy - utcInicio;
+  const dias = Math.floor(diferenciaMs / (1000 * 60 * 60 * 24));
   
-  const diferenciaMs = Math.abs(hoy - inicio);
-  return Math.floor(diferenciaMs / (1000 * 60 * 60 * 24));
+  return dias > 0 ? dias : 0;
 };
 
 const formatoFecha = (fechaStr) => {
   if (!fechaStr) return '-';
-  const [year, month, day] = fechaStr.split('-');
-  return `${year}-${month}-${day}`;
+  let dateString = fechaStr;
+  if (dateString.includes('T')) {
+    dateString = dateString.split('T')[0];
+  }
+  const parts = dateString.split('-');
+  if (parts.length !== 3) return '-';
+  return `${parts[0]}-${parts[1]}-${parts[2]}`;
 };
 
 const formatoFechaHora = (isoStr) => {
@@ -198,6 +214,7 @@ const topTrabajadoresData = computed(() => {
     datasets: [{ label: 'Tareas', backgroundColor: '#E74C3C', data: sorted.map(item => item[1]), borderRadius: 6 }]
   };
 });
+
 const chartOptionsTrabajadores = {
   responsive: true, maintainAspectRatio: false,
   plugins: { legend: { display: false }, datalabels: { anchor: 'end', align: 'end', color: '#333333', font: { weight: 'bold', family: 'Inter', size: 12 } } },
@@ -206,6 +223,7 @@ const chartOptionsTrabajadores = {
     x: { grid: { display: false, drawBorder: false }, title: { display: true, text: 'Trabajador', color: '#64748B', font: { family: 'Inter', weight: '600' } } }
   }
 };
+
 const trabajadorSeleccionado = ref('');
 const trabajadoresConHistorial = computed(() => {
   const unicas = new Set(completadosDatos.value.map(item => item.nombre).filter(n => n));
@@ -225,6 +243,7 @@ const registrarSalidaHerramienta = async () => {
     await cargarDatosPrincipales();
   } catch (e) { console.error(e); }
 };
+
 const devolverHerramienta = async (id) => {
   try {
     await api.patch(`herramientas/${id}/`, { estado: 'Devuelto', fecha_devolucion: new Date().toISOString() });
