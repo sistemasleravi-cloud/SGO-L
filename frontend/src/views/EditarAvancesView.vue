@@ -135,20 +135,19 @@ const guardarAvances = async (esBorrado = false) => {
 
               <div class="input-group">
                 <label>Maquina {{ i }}</label>
-                <select v-model="trabajadorActual['maquina_' + i]" class="modern-select">
+                <input v-model="trabajadorActual['maquina_' + i]" :list="'lista-maquinas-' + i" class="modern-select" placeholder="- N/A -" />
+                <datalist :id="'lista-maquinas-' + i">
                   <option value="-">- N/A -</option>
-                  <option v-for="m in maquinas" :key="m.id" :value="m.nombre">
-                    {{ m.nombre }}
-                  </option>
-                </select>
+                  <option v-for="m in maquinas" :key="m.id" :value="m.nombre"></option>
+                </datalist>
               </div>
 
               <div class="input-group">
                 <label>Avance %</label>
                 <div class="stepper-container">
-                  <button type="button" class="stepper-btn" @click="ajustarAvance(i, -1)">-</button>
-                  <input v-model="trabajadorActual['avance_' + i]" type="number" min="0" max="100" class="stepper-input" />
-                  <button type="button" class="stepper-btn" @click="ajustarAvance(i, 1)">+</button>
+                  <button type="button" class="stepper-btn" @click="ajustarAvance(i, -5)">-</button>
+                  <input v-model="trabajadorActual['avance_' + i]" type="number" min="0" max="100" step="5" class="stepper-input" />
+                  <button type="button" class="stepper-btn" @click="ajustarAvance(i, 5)">+</button>
                 </div>
               </div>
             </div>
